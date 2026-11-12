@@ -23,7 +23,7 @@ FORM: Grounded candidate 6, investment research review. Ordered candidates: risk
 
 FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance
 
-No shipping rasters are needed; all visual data is rendered as accessible HTML/CSS/SVG. Built directly in code under Operate mode. State changes transition in 180ms, without entrance animation; reduced motion disables transitions.
+Visual data is rendered as accessible HTML/CSS/SVG, with locally served official firm icons carrying embedded source provenance. Built directly in code under Operate mode. State changes transition in 180ms, without entrance animation; reduced motion disables transitions.
 
 ## Minimum trading days extension
 
@@ -32,3 +32,7 @@ Use whole-number completed-count fields under quick P&L and a flat day-progress 
 ## Empty calculation refinement
 
 Remove the profit-basis selector, column, account note, and fixed “at least” chip. Start with blank profit and completed-day inputs and an empty journal, including after migrating old saved synthetic defaults. Explicit examples load financial amounts only. The live result shows days needed for the entered remaining profit rather than a fixed reciprocal-day figure from the start. Hide day results until performance inputs are valid and show an instructional empty state before entry. Preserve the existing visual system and its outstanding rendered-review limitation.
+
+## Firm identity icons
+
+Use the official Tradeify, Topstep, My Funded Futures, and FTMO website icons in the selected account, comparison rows, and library headings. Preserve each mark's original colors and proportions at a quiet 26–32px size. Keep the native select and visible firm names, hide decorative duplicate marks from assistive technology, and use the existing sliders icon for a custom rule. Bundle all four PNGs in the static build; source records live in `assets/firms/README.md` and inside the image metadata.

@@ -4,11 +4,11 @@ const futuresSizes = [25000, 50000, 100000, 150000];
 const topstepSizes = [50000, 100000, 150000];
 const ftmoSizes = [10000, 25000, 50000, 100000, 200000];
 export const firms = [
-  { id: 'tradeify', name: 'Tradeify', initials: 'T', market: 'Futures', color: 'blue' },
-  { id: 'topstep', name: 'Topstep', initials: 'TS', market: 'Futures', color: 'yellow' },
-  { id: 'mffu', name: 'My Funded Futures', initials: 'MF', market: 'Futures', color: 'green' },
-  { id: 'ftmo', name: 'FTMO', initials: 'F', market: 'Forex / CFDs', color: 'slate' },
-  { id: 'custom', name: 'Custom rule', initials: '+', market: 'Your settings', color: 'purple' }
+  { id: 'tradeify', name: 'Tradeify', icon: '/assets/firms/tradeify.png', market: 'Futures' },
+  { id: 'topstep', name: 'Topstep', icon: '/assets/firms/topstep.png', market: 'Futures' },
+  { id: 'mffu', name: 'My Funded Futures', icon: '/assets/firms/mffu.png', market: 'Futures' },
+  { id: 'ftmo', name: 'FTMO', icon: '/assets/firms/ftmo.png', market: 'Forex / CFDs' },
+  { id: 'custom', name: 'Custom rule', market: 'Your settings' }
 ];
 
 const tradeifyRule = 'https://help.tradeify.co/en/articles/10468320-rules-consistency-rule';

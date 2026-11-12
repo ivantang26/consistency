@@ -33,6 +33,7 @@ The root `vercel.json` configures this app as a static site with build command `
 - Least possible trading days from the consistency percentage and recorded firm minimums, plus completed and remaining day counts.
 - Automatic journal counting, including size-specific qualifying winning-day thresholds, and an editable custom day minimum.
 - Four firms, thirteen published plan/stage presets, and custom rules.
+- Official firm icons in the account selector, comparison table, and rule library, served locally with [asset source records](assets/firms/README.md).
 - Account-size examples, searchable rules, source links, CSV export, and device-local persistence.
 - Responsive layouts, keyboard controls, visible focus, and reduced-motion support.
 

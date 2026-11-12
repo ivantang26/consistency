@@ -102,6 +102,7 @@ function inputs() {
 
 function renderAccount() {
   const plan = planById(state.plan);
+  $('selected-firm-icon').innerHTML = avatar(firms.find(f => f.id === plan.firm));
   $('firm-select').innerHTML = firms.map(f => `<option value="${f.id}" ${f.id === plan.firm ? 'selected' : ''}>${f.name}</option>`).join('');
   $('plan-select').innerHTML = plans.filter(p => p.firm === plan.firm).map(p => `<option value="${p.id}" ${p.id === plan.id ? 'selected' : ''}>${p.name}</option>`).join('');
   if (!plan.sizes.includes(state.size)) state.size = plan.sizes[0];
@@ -241,7 +242,9 @@ function renderScenario() {
   $('scenario-result').innerHTML = `<div class="scenario-values"><div><span>New consistency</span><strong>${r.noRule ? 'No rule' : percent(r.ratio)}</strong></div><div><span>Still needed</span><strong>${money(r.remaining)}</strong></div></div><div class="scenario-outcome">${amount > ctx.best ? `This sets a new best day of ${money(amount)}.` : r.meets ? r.targetMet ? 'The consistency and listed profit checks are met.' : 'Consistency is met; the profit goal remains.' : 'The consistency requirement would still be outstanding.'}<br>${escape(daysNote)}</div>`;
 }
 
-function avatar(f) { return `<span class="firm-avatar ${f.color}" aria-hidden="true">${escape(f.initials)}</span>`; }
+function avatar(f) {
+  return `<span class="firm-avatar${f.icon ? '' : ' firm-avatar-custom'}" aria-hidden="true">${f.icon ? `<img src="${escape(f.icon)}" width="32" height="32" alt="">` : icon('sliders')}</span>`;
+}
 function renderPreview() {
   const ids = ['tradeify-growth', 'topstep-combine', 'mffu-eod', 'ftmo-current'];
   $('preview-rows').innerHTML = ids.map(id => {
