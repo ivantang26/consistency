@@ -20,6 +20,10 @@ node scripts/server.mjs --dist
 
 Deploy `dist/` to a static host. No backend or API keys are required. Google Fonts supplies Manrope when reachable; the system font stack is the fallback.
 
+### Vercel
+
+The root `vercel.json` configures this app as a static site with build command `npm run build` and output directory `dist`. This overrides an incorrect `public` output-directory setting. Set the Vercel project's Root Directory to the repository root, then deploy the commit containing this configuration. The build copies `index.html`, assets, and JavaScript modules into `dist/`; the development server is not part of the deployed runtime.
+
 ## Features
 
 - Quick summary calculations or a daily P&L journal, including losing days.
