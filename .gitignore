@@ -1,0 +1,7 @@
+dist/
+node_modules/
+.impeccable/review/
+.impeccable/questions/
+.impeccable/mocks/
+.impeccable/config.local.json
+qa-results/

@@ -1,0 +1,14 @@
+{
+  "name": "consistency",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "A transparent prop-firm consistency calculator and rule library.",
+  "scripts": {
+    "dev": "node scripts/server.mjs",
+    "start": "node scripts/server.mjs",
+    "test": "node --test tests/*.test.mjs",
+    "build": "node scripts/build.mjs"
+  },
+  "engines": { "node": ">=22" }
+}

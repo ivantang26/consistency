@@ -1,0 +1,27 @@
+{
+  "title": "A clear workspace for consistency",
+  "question": "Keep this direction, request a change, or explore another direction.",
+  "options": [{
+    "id": "research-review",
+    "kind": "assigned",
+    "label": "The research review",
+    "thesis": "A precise calculator with the clarity of an independent investment report.",
+    "palette": ["#f5f5f8", "#ffffff", "#5550c8", "#232334"],
+    "materials": ["lavender navigation", "white work surfaces", "tabular financial figures"],
+    "viewport": "A familiar side navigation, account selectors above editable P&L, and a live result beside it; a split profit bar shows the best day against the rest.",
+    "risk": "The visual restraint needs excellent spacing and useful examples to feel distinctive."
+  }],
+  "buildPath": {"value": "code", "toggle": true},
+  "reroll": {"registers": ["safer", "bolder"]},
+  "steer": true,
+  "canon": true,
+  "canonCard": {
+    "kind": "canon",
+    "label": "The familiar trading dashboard",
+    "thesis": "Conventional financial dashboard controls and a compact data grid.",
+    "palette": ["#ffffff", "#172b4d", "#2563eb"],
+    "materials": ["white panels", "blue controls"],
+    "viewport": "Top navigation and a full-width calculation form followed by results.",
+    "risk": "A familiar but less distinctive workspace."
+  }
+}

@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#6056ce">
+  <meta name="description" content="Calculate your prop firm consistency, see the additional profit you need, and compare plan-specific rules across account sizes.">
+  <title>Consistency — Your prop firm calculator</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
+  <script type="module" src="/src/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to calculator</a>
+  <aside class="sidebar" aria-label="Workspace navigation">
+    <a href="#calculator" class="brand" aria-label="Consistency home"><img src="/favicon.svg" width="33" height="33" alt=""><span>consistency<span class="brand-dot">.</span></span></a>
+    <div class="workspace-label">Your trading companion</div>
+    <nav class="navigation">
+      <a href="#calculator" data-nav="calculator"><span data-icon="calculator"></span>Calculator</a>
+      <a href="#rules" data-nav="rules"><span data-icon="library"></span>Firm rule library<span class="nav-count">4</span></a>
+      <a href="#guide" data-nav="guide"><span data-icon="book"></span>How it works</a>
+    </nav>
+    <div class="sidebar-note">
+      <svg viewBox="0 0 150 70" class="sidebar-chart" aria-hidden="true"><path d="M2 58H148M2 35H148M2 12H148" stroke="#dcd8ed" stroke-width="1"/><path d="m5 50 24-5 23 6 23-25 23 9 23-17 24-10" fill="none" stroke="#7769cc" stroke-width="2.5" stroke-linejoin="round"/><circle cx="145" cy="8" r="4" fill="#7769cc"/></svg>
+      <h2>Less guesswork.<br>More perspective.</h2>
+      <p>A big trading day doesn’t have to be a big question mark.</p>
+      <a href="#guide">Understand the rule <span data-icon="arrow"></span></a>
+    </div>
+    <div class="sidebar-bottom"><span data-icon="shield"></span><span>Your numbers stay on this device.</span></div>
+  </aside>
+  <main id="main" tabindex="-1">
+    <header class="page-header">
+      <div><h1 id="page-title">Consistency calculator</h1><p id="page-description">Know where you stand. Plan your next trading day.</p></div>
+      <div class="header-actions"><span class="save-status" id="save-status"><span class="status-dot"></span>Saved on this device</span><button class="button secondary" id="export-button"><span data-icon="download"></span>Export summary</button></div>
+    </header>
+    <div id="calculator-view">
+      <section class="account-panel panel" aria-labelledby="account-heading">
+        <div class="section-heading"><h2 id="account-heading">Your account</h2><span class="subtle">The right rule starts with the right plan.</span></div>
+        <div class="account-fields">
+          <label>Prop firm<select id="firm-select"></select></label>
+          <label>Plan &amp; stage<select id="plan-select"></select></label>
+          <label>Account size<select id="size-select"></select></label>
+        </div>
+        <div id="custom-fields" class="custom-fields" hidden>
+          <label>Consistency limit<div class="input-wrap"><input id="custom-rule" type="text" inputmode="decimal" value="30"><span class="suffix">%</span></div></label>
+          <label>Profit basis<select id="custom-basis"><option value="net">Net profit, including losses</option><option value="positive">Profitable days only</option></select></label>
+          <label>Profit goal <span class="optional">(optional)</span><div class="input-wrap"><span class="prefix">$</span><input id="custom-target" type="text" inputmode="decimal" value="0"></div></label>
+          <label>Minimum trading days<div class="input-wrap"><input id="custom-minimum-days" type="text" inputmode="numeric" value="0" aria-describedby="custom-days-help"></div><span class="field-help" id="custom-days-help">Enter 0 if your firm has no separate day minimum.</span></label>
+        </div>
+        <div class="account-rule"><div><span class="rule-chip" id="rule-chip">35% consistency rule</span><span class="rule-chip" id="minimum-days-chip">At least 5 days</span><span id="basis-note">Best day ÷ total profit</span></div><a id="source-link" target="_blank" rel="noopener noreferrer">Official rule <span data-icon="external"></span></a></div>
+        <details class="plan-details"><summary>Plan details &amp; calculation window</summary><p id="plan-note"></p></details>
+      </section>
+      <div class="calculator-grid">
+        <section class="performance panel" aria-labelledby="performance-heading">
+          <div class="section-heading"><h2 id="performance-heading">Your trading performance</h2><button class="text-button" id="reset-button">Clear inputs</button></div>
+          <div class="segmented" role="group" aria-label="Input method"><button id="summary-mode" aria-pressed="true"><span data-icon="sliders"></span>Quick calculation</button><button id="journal-mode" aria-pressed="false"><span data-icon="calendar"></span>Daily P&amp;L</button></div>
+          <div class="demo-label" id="demo-label"><span data-icon="info"></span>Example numbers. Replace them with your own.<button class="text-button" id="load-example">Reload example</button></div>
+          <div id="summary-inputs">
+            <label class="money-label" for="total-input"><span id="total-label">Total profit</span><span class="field-help" id="total-help">Profit for your current calculation window, including losses.</span></label>
+            <div class="input-wrap money-input"><span class="prefix">$</span><input id="total-input" type="text" inputmode="decimal" value="2800" aria-describedby="total-help"></div>
+            <label class="money-label" for="best-input">Best day profit<span class="field-help" id="best-help">Your highest single-day profit in the same window.</span></label>
+            <div class="input-wrap money-input"><span class="prefix">$</span><input id="best-input" type="text" inputmode="decimal" value="1200" aria-describedby="best-help"></div>
+            <div id="net-field" hidden><label class="money-label" for="net-input">Net profit including losses<span class="field-help">Used separately to check the evaluation profit target.</span></label><div class="input-wrap money-input"><span class="prefix">$</span><input id="net-input" type="text" inputmode="decimal" value="2800"></div></div>
+            <div class="day-count-fields">
+              <div><label class="money-label" for="trading-days-input">Trading days completed<span class="field-help" id="trading-days-help">Count sessions in this calculation window.</span></label><div class="input-wrap"><input id="trading-days-input" type="text" inputmode="numeric" value="5" aria-describedby="trading-days-help day-count-error" placeholder="Enter days"></div></div>
+              <div id="qualifying-days-field" hidden><label class="money-label" for="qualifying-days-input">Qualifying winning days<span class="field-help" id="qualifying-days-help"></span></label><div class="input-wrap"><input id="qualifying-days-input" type="text" inputmode="numeric" value="4" aria-describedby="qualifying-days-help day-count-error" placeholder="Enter wins"></div></div>
+            </div>
+          </div>
+          <div id="journal-inputs" hidden><p class="field-help journal-help">One row per trading session. Include losing days and use your firm’s daily P&amp;L basis.</p><div id="journal-rows"></div><button class="button secondary add-day" id="add-day"><span data-icon="plus"></span>Add trading day</button><div class="journal-totals" id="journal-totals"></div></div>
+          <p class="input-error" id="input-error" role="alert" hidden></p>
+          <div class="performance-foot"><span data-icon="lock"></span><span>Auto-calculates as you type. No sign-up needed.</span></div>
+        </section>
+        <section class="result-panel" aria-labelledby="result-heading"><div id="result-content" aria-live="polite" aria-atomic="true"></div><div id="trading-days-result" class="day-progress" aria-live="polite" aria-atomic="true"></div></section>
+      </div>
+      <div class="secondary-grid">
+        <section class="breakdown panel" aria-labelledby="breakdown-heading"><div class="section-heading"><h2 id="breakdown-heading">The math, made simple</h2><span data-icon="chart"></span></div><div id="math-content"></div></section>
+        <section class="planner panel" aria-labelledby="planner-heading"><div class="section-heading"><h2 id="planner-heading">What if your next day makes…</h2><span class="small-tag">Plan ahead</span></div><label for="scenario-input" class="sr-only">Hypothetical next trading day profit</label><div class="scenario-control"><div class="input-wrap"><span class="prefix">$</span><input id="scenario-input" type="text" inputmode="decimal" value="500"></div><span>on a new trading day</span></div><div id="scenario-result" aria-live="polite"></div><p class="micro-copy">A scenario, not a trading recommendation. A larger day can set a new best day.</p></section>
+      </div>
+      <section class="preview-rules" aria-labelledby="compare-heading"><div class="section-heading"><div><h2 id="compare-heading">Different firms. Different rules.</h2><p class="subtle">Explore a few examples before you do the math.</p></div><a class="inline-link" href="#rules">View all firm rules <span data-icon="arrow"></span></a></div><div class="table-container panel"><table class="rules-preview"><thead><tr><th>Firm / plan</th><th>Account</th><th>Consistency</th><th>Least days</th><th>Profit basis</th><th><span class="sr-only">Load example</span></th></tr></thead><tbody id="preview-rows"></tbody></table></div></section>
+      <div class="notice"><span data-icon="info"></span><p>This checks consistency, any listed evaluation profit target, and the day requirements recorded for your preset. Drawdown, buffers, and other payout requirements still apply. Always confirm your account agreement.</p></div>
+    </div>
+    <div id="rules-view" hidden><div class="library-intro"><p>Choose the exact plan and stage. The same firm can use more than one rule.</p><span class="checked-label"><span data-icon="check"></span>Sources checked 12 Nov 2026</span></div><div class="library-toolbar"><label class="search-field"><span data-icon="search"></span><input type="search" id="rule-search" aria-label="Search firm rules" placeholder="Search a firm, plan, or stage…"></label><label class="sr-only" for="library-filter">Filter by firm</label><select id="library-filter"><option value="all">All firms</option></select></div><p class="library-count" id="library-count"></p><div id="library-content"></div><div class="notice"><span data-icon="info"></span><p>Examples are illustrative, not trading results. Rules can change. Account purchase date, add-ons, and payout number may affect the rule that applies to you.</p></div></div>
+    <div id="guide-view" class="guide" hidden>
+      <article class="guide-main panel"><h2>A simple percentage. A clearer picture.</h2><p>A consistency rule measures how much of your profit came from your single best trading day. A smaller percentage means your profit is spread across more days.</p><div class="guide-formula"><span>Best day profit</span><span aria-hidden="true">÷</span><span>Profit in the window</span><span aria-hidden="true">×</span><span>100</span></div><h3>Start with the right window</h3><p>For an evaluation, this is usually the evaluation so far. For a payout, it may be the current payout cycle. A carried balance is not necessarily profit in your new window. The plan details in the calculator explain the presets.</p><h3>Keep losing days in the calculation</h3><p>For a net-profit rule, losses reduce your total profit but leave your best day intact. Your percentage can exceed 100%. FTMO’s legacy Best Day rule is different: it counts only profitable days. Choose the matching preset.</p><h3>Find the profit you still need</h3><p>Divide your best day by the rule as a decimal, then subtract your current profit. We round the required amount upward to the first qualifying cent. If an evaluation has a higher profit target, the remaining amount includes that target too.</p><h3>Find the least trading days</h3><p>Divide 100 by your consistency percentage and round up. A 35% rule needs at least 3 profitable days from a fresh window. A firm can require more: Tradeify Growth needs 5 qualifying wins, using the profit threshold for your account size. Enter completed counts or use the journal to see how many days remain. The earliest-finish estimate also accounts for remaining profit while keeping future days at or below your current best day.</p><div class="worked-example"><h3>A $50K Tradeify Growth example</h3><dl><div><dt>Best day</dt><dd>$1,200.00</dd></div><div><dt>Total profit</dt><dd>$2,800.00</dd></div><div><dt>Current consistency</dt><dd>42.86%</dd></div><div><dt>Required at 35%</dt><dd>$3,428.58</dd></div><div><dt>Additional profit</dt><dd>$628.58</dd></div></dl><p>That assumes later days do not exceed the existing $1,200 best day. The $50K account size is not the denominator.</p><button class="button primary" data-example="tradeify-growth" data-size="50000">Try this example <span data-icon="arrow"></span></button></div><a href="https://help.tradeify.co/en/articles/10468320-rules-consistency-rule" target="_blank" rel="noopener noreferrer" class="inline-link">Read Tradeify’s consistency guidance <span data-icon="external"></span></a></article>
+      <aside class="guide-faq"><h2>A few good questions</h2><details open><summary>Does a big day fail my account?</summary><p>The featured percentage rules generally require more profit before passing or requesting a payout. Consistency is separate from drawdown and other account breach rules.</p></details><details><summary>Does account size change the percentage?</summary><p>Usually the percentage belongs to the plan. Account size can change the evaluation profit target, which changes the best-day amount you can have at that target.</p></details><details><summary>What if I make more on my best day?</summary><p>It raises that day’s total. Treat the scenario planner as a new trading day. Extra profit on the same day can increase your best day and the total profit you need.</p></details><details><summary>Why can 35.00% still be above 35%?</summary><p>The displayed percentage is rounded to two decimals. Compliance is calculated from the original amounts, so a value such as 35.001% still exceeds 35%.</p></details><details><summary>Where are my numbers stored?</summary><p>In this browser’s local storage on this device. Export a summary to keep a separate copy. There is no account, cloud sync, or connection to your broker.</p></details></aside>
+    </div>
+    <footer><a href="#calculator" class="footer-brand">consistency.</a><span>A little clarity goes a long way.</span><span>Independent tool · All amounts in USD</span></footer>
+  </main>
+  <div id="toast" role="status" hidden><span id="toast-text"></span><button id="undo-button" hidden>Undo</button><button id="toast-close" aria-label="Dismiss notification"><span data-icon="close"></span></button></div>
+  <noscript><div class="noscript">Enable JavaScript to use the calculator. All calculations run in your browser.</div></noscript>
+</body>
+</html>
