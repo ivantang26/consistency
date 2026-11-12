@@ -36,3 +36,7 @@ Remove the profit-basis selector, column, account note, and fixed “at least”
 ## Firm identity icons
 
 Use the official Tradeify, Topstep, My Funded Futures, and FTMO website icons in the selected account, comparison rows, and library headings. Preserve each mark's original colors and proportions at a quiet 26–32px size. Keep the native select and visible firm names, hide decorative duplicate marks from assistive technology, and use the existing sliders icon for a custom rule. Bundle all four PNGs in the static build; source records live in `assets/firms/README.md` and inside the image metadata.
+
+## Expanded firm library
+
+Add Apex Trader Funding, Take Profit Trader, Earn2Trade, and Alpha Futures to the existing selector, preview table, search/filter, and library, for eight firms and twenty published presets. Keep the current layout and use locally bundled website icons. Derive the navigation count and preview rows from firm metadata. Show “Below” for strict limits, preserve first-qualifying-cent calculations in scenarios and CSV exports, and distinguish qualifying wins that meet a threshold from those that must exceed it. Record source boundaries and uncertainty in the plan notes and research record. Fresh profit and completed-day inputs remain empty.

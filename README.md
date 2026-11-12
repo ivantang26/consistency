@@ -32,7 +32,7 @@ The root `vercel.json` configures this app as a static site with build command `
 - A next-day scenario planner that recalculates the best day.
 - Least possible trading days from the consistency percentage and recorded firm minimums, plus completed and remaining day counts.
 - Automatic journal counting, including size-specific qualifying winning-day thresholds, and an editable custom day minimum.
-- Four firms, thirteen published plan/stage presets, and custom rules.
+- Eight firms, twenty published plan/stage presets, and custom rules.
 - Official firm icons in the account selector, comparison table, and rule library, served locally with [asset source records](assets/firms/README.md).
 - Account-size examples, searchable rules, source links, CSV export, and device-local persistence.
 - Responsive layouts, keyboard controls, visible focus, and reduced-motion support.
@@ -41,7 +41,7 @@ The root `vercel.json` configures this app as a static site with build command `
 
 For net-profit rules: `best day / total profit × 100`.
 
-The required total is `ceil(best day in cents × 10000 / rule in basis points)`. Compliance compares original integer amounts; the two-decimal display never decides compliance. The remaining amount is the larger of the consistency shortfall and the net evaluation-target shortfall. Future profits must not set a new best day for this estimate to hold. The scenario planner updates the best day when necessary.
+For limits that allow equality, the required total is `ceil(best day in cents × 10000 / rule in basis points)`. Strictly-below limits use `floor(...) + 1` to find the first qualifying cent. Compliance compares original integer amounts; the two-decimal display never decides compliance. The remaining amount is the larger of the consistency shortfall and the net evaluation-target shortfall. Future profits must not set a new best day for this estimate to hold. The scenario planner updates the best day when necessary.
 
 FTMO's legacy 1-Step preset uses the sum of profitable days for consistency, while keeping net profit separate for the evaluation target. The current 1-Step preset includes losing days. Select the rule that appears in Account MetriX.
 
@@ -51,7 +51,7 @@ This app checks a best-day percentage rule, any listed evaluation profit target,
 
 ### Minimum trading days
 
-The rule library records the consistency lower bound from a fresh window, `ceil(100 / rule percent)`, alongside any firm minimum. The calculator starts empty and shows a dynamic profit-only day estimate from the entered amounts, plus progress against recorded day requirements when completed counts are supplied. It does not show a fixed “at least four days” starting assumption.
+The rule library records the consistency lower bound from a fresh window, `ceil(100 / rule percent)`, alongside any firm minimum. Strictly-below rules use `floor(100 / rule percent) + 1`. The calculator starts empty and shows a dynamic profit-only day estimate from the entered amounts, plus progress against recorded day requirements when completed counts are supplied. It does not show a fixed “at least four days” starting assumption.
 
 In quick mode, enter total sessions and any qualifying winning days. Blank counts remain unknown. The journal counts one row as one trading session with at least one trade; zero or losing P&L still counts as a session, but does not count as a qualifying win.
 
@@ -67,6 +67,12 @@ Checked 12 November 2026; rules are stored in `src/presets.js` and are not autom
 - [My Funded Futures evaluation parameters](https://help.myfundedfutures.com/en/articles/11802636-traders-evaluation-simplified): Rapid Intraday 50%, Rapid EOD 30%. [Rapid funded rules](https://help.myfundedfutures.com/en/articles/13134709-rapid-plan-50k-a-comprehensive-look): no consistency requirement at that stage.
 - [Tradeify consistency rules](https://help.tradeify.co/en/articles/10468320-rules-consistency-rule): Growth funded 35%, Lightning 20%/25%/30% for applicable purchase dates. [Select evaluation](https://help.tradeify.co/en/articles/12853921-select-evaluation-accounts): 40% or purchased 50% add-on. Older account targets may differ.
 - [FTMO trading objectives](https://ftmo.com/en/trading-objectives/): current 1-Step 50% on total profit; applicable legacy 1-Step 50% on profitable days. Account size examples and 10% target are corroborated by the [1-Step offer](https://promo.ftmo.com/new-1-step-challenge/).
+- [Apex EOD payouts](https://apextraderfunding.com/help-center/eod-trailing-drawdown-accounts/eod-payouts/) and [Intraday payouts](https://apextraderfunding.com/help-center/uncategorized/intraday-trailing-drawdown-payouts/): current PA payout windows, below 50%, with five wins meeting size-specific daily minimums. Legacy accounts are excluded.
+- [Take Profit Trader consistency](https://takeprofittraderhelp.zendesk.com/hc/en-us/articles/15170316538013-Rule-5-Be-Consistent): Test below 50%, three active days, with [published targets](https://takeprofittraderhelp.zendesk.com/hc/en-us/articles/15169070804125-Rule-1-Hit-Your-Profit-Target) for 25K/50K/75K/100K/150K.
+- [Earn2Trade consistency](https://help.earn2trade.com/en/articles/3849975-what-is-the-maintain-consistency-rule): 30% evaluation presets for [Gauntlet Mini](https://www.earn2trade.com/gauntlet-mini) and [Trader Career Path](https://www.earn2trade.com/trader-career-path). Current product pages list no separate minimum days; the percentage still requires at least four profitable sessions.
+- [Alpha Futures consistency](https://help.alpha-futures.com/en/articles/9492048-consistency-rule) and [evaluation terms](https://alpha-futures.com/terms-and-conditions): Standard 50% with 6% targets; Advanced 40% with 8% targets. Both have a two-day firm minimum; the Advanced percentage implies three profitable days. Qualified stages are excluded from these evaluation presets.
+
+New preset evidence, account targets, day thresholds, and source wording conflicts are recorded in [rule research](docs/rule-research.md). Apex uses the stricter wording in its payout policies because a general help example inconsistently accepts exactly 50%; this interpretation is stated in the preset notes.
 
 All example trading results are synthetic. Firm names identify the researched presets; this project is independent.
 
@@ -76,6 +82,6 @@ Keep `PRODUCT.md`, `DESIGN.md`, `.impeccable/design.json`, and `.impeccable/surf
 
 ## Verification
 
-Thirty-five Node tests pass, including calculation boundaries, qualifying-day thresholds, scenario validation, empty initial state, migration of saved synthetic defaults, preservation of entered data, and net-profit migration after removal of the custom selector. Static build and HTTP asset checks pass. Source review identified and resolved basis-switching and notification-contrast issues.
+Forty-three Node tests cover calculation boundaries, strict percentage comparisons, inclusive and exclusive qualifying-day thresholds, scenario validation, size-specific plan targets, empty initial state, migration of saved synthetic defaults, preservation of entered data, and net-profit migration after removal of the custom selector. Static build and HTTP asset checks cover all eight firm icons.
 
 Impeccable's rendered finish disposition is `recapture`: desktop and mobile screenshots could not be captured because browser access was unavailable and native computer use subsequently stopped on a URL-confidence policy check. Responsive layout, live browser interactions, final contrast, and font loading remain visually unverified. No deployment was performed.

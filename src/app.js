@@ -42,7 +42,7 @@ function save() {
 }
 function context() {
   const plan = planById(state.plan);
-  return { plan, basis: plan.id === 'custom' ? 'net' : plan.basis, ruleBps: plan.id === 'custom' ? parsePercent(state.customRule) : plan.rule,
+  return { plan, basis: plan.id === 'custom' ? 'net' : plan.basis, ruleBps: plan.id === 'custom' ? parsePercent(state.customRule) : plan.rule, exclusive: plan.exclusive ?? false,
     target: plan.id === 'custom' ? parseMoney(state.customTarget) : targetFor(plan, state.size),
     ...dayRuleFor(plan, state.size), ...(plan.id === 'custom' ? { firmMinimum: parseDayCount(state.customMinimumDays) } : {}) };
 }
@@ -68,7 +68,7 @@ function renderDayInputs() {
   $('trading-days-input').value = state.tradingDays;
   $('qualifying-days-input').value = state.qualifyingDays;
   $('qualifying-days-field').hidden = ctx.winningThreshold === null;
-  $('qualifying-days-help').textContent = ctx.winningThreshold === null ? '' : `Each day must exceed ${money(ctx.winningThreshold, 0)} profit.`;
+  $('qualifying-days-help').textContent = ctx.winningThreshold === null ? '' : `Each day must earn ${ctx.winningInclusive ? 'at least' : 'more than'} ${money(ctx.winningThreshold, 0)} profit.`;
 }
 function syncSummaryDayCounts() {
   const progress = tradingDayProgress({ ...context(), days: state.days });
@@ -78,7 +78,7 @@ function syncSummaryDayCounts() {
 }
 function reconcileDayCounts(previousRule) {
   const next = context();
-  if (next.winningThreshold !== null && previousRule.winningThreshold !== next.winningThreshold) state.qualifyingDays = '';
+  if (next.winningThreshold !== null && (previousRule.winningThreshold !== next.winningThreshold || previousRule.winningInclusive !== next.winningInclusive)) state.qualifyingDays = '';
 }
 function inputs() {
   const ctx = context();
@@ -111,7 +111,7 @@ function renderAccount() {
   $('custom-rule').value = state.customRule;
   $('custom-target').value = state.customTarget;
   const ctx = context();
-  $('rule-chip').textContent = ctx.ruleBps === null ? (plan.id === 'custom' ? 'Enter a custom limit' : 'No consistency rule') : `${ctx.ruleBps / 100}% consistency rule`;
+  $('rule-chip').textContent = ctx.ruleBps === null ? (plan.id === 'custom' ? 'Enter a custom limit' : 'No consistency rule') : `${ctx.exclusive ? 'Below ' : ''}${ctx.ruleBps / 100}% consistency rule`;
   $('source-link').hidden = !plan.source;
   if (plan.source) $('source-link').href = plan.source;
   $('plan-note').textContent = plan.note;
@@ -175,18 +175,18 @@ function renderResult() {
   }
   const ruleText = r.ruleBps === null ? 'No rule' : `${r.ruleBps / 100}%`;
   const empty = r.best === 0 && r.total <= 0;
-  const status = r.noRule ? 'No consistency requirement' : empty ? 'Add your trading profits' : r.meets ? 'Within the limit' : 'Above the limit';
+  const status = r.noRule ? 'No consistency requirement' : empty ? 'Add your trading profits' : r.meets ? 'Within the limit' : r.exclusive ? 'Limit not met' : 'Above the limit';
   const badgeClass = r.noRule || empty ? 'neutral' : r.meets ? 'success' : 'warning';
   let message;
   if (r.noRule) message = 'This plan has <strong>no consistency percentage</strong> at this stage. Check the other account requirements separately.';
   else if (empty) message = 'Add your trading results to see your best day’s share of your profit.';
   else if (r.meets) message = `Your best day is <strong>within the ${ruleText} limit.</strong> ${r.targetMet ? 'The consistency calculation is met for these figures.' : `The evaluation target still needs ${money(r.targetRemaining)}.`}`;
-  else message = `Your best day makes up <strong>${r.ratio === null ? 'more than your current profit' : percent(r.ratio) + ' of your profit'}.</strong> ${r.total <= 0 ? 'Build a positive profit total to meet the rule.' : `Bring it to ${ruleText} or below by building profit on other days.`}`;
+  else message = `Your best day makes up <strong>${r.ratio === null ? 'more than your current profit' : percent(r.ratio) + ' of your profit'}.</strong> ${r.total <= 0 ? 'Build a positive profit total to meet the rule.' : `Bring it ${r.exclusive ? `strictly below ${ruleText}` : `to ${ruleText} or below`} by building profit on other days.`}`;
   const ratioNumber = r.noRule ? '—' : r.ratio === null ? '—' : r.ratio > 9999.99 ? '&gt;9,999' : r.ratio.toFixed(2);
   $('result-content').innerHTML = `<div class="result-top"><h2 id="result-heading">Your consistency</h2><span class="badge ${badgeClass}">${icon(r.meets && !r.noRule ? 'check' : r.noRule || empty ? 'info' : 'warning')}${status}</span></div>
     <div class="ratio-number">${ratioNumber}${r.ratio !== null && !r.noRule ? '<small>%</small>' : ''}</div>
     <p class="ratio-description">${r.noRule ? 'Percentage check does not apply to this plan' : 'of your profit came from your best trading day'}</p>
-    ${r.noRule ? '' : `<div class="consistency-meter" style="--share:${Math.min(100, r.ratio || 0)}%;--limit:${r.ruleBps / 100}%" role="img" aria-label="Best-day share ${r.ratio === null ? 'not available' : percent(r.ratio)}, limit ${ruleText}"><span class="meter-fill"></span><span class="meter-limit"></span></div><div class="meter-labels"><span>0%</span><span>100%</span></div><div class="meter-legend"><span class="legend-line"></span>${ruleText} consistency limit${r.ratio > 100 ? ' · chart capped at 100%' : ''}</div>`}
+    ${r.noRule ? '' : `<div class="consistency-meter" style="--share:${Math.min(100, r.ratio || 0)}%;--limit:${r.ruleBps / 100}%" role="img" aria-label="Best-day share ${r.ratio === null ? 'not available' : percent(r.ratio)}, limit ${ruleText}"><span class="meter-fill"></span><span class="meter-limit"></span></div><div class="meter-labels"><span>0%</span><span>100%</span></div><div class="meter-legend"><span class="legend-line"></span>${r.exclusive ? 'Below ' : ''}${ruleText} consistency limit${r.ratio > 100 ? ' · chart capped at 100%' : ''}</div>`}
     <p class="result-message">${message}</p>
     <div class="remaining-row"><div>${icon('arrow')}Additional profit needed</div><strong class="remaining-amount" id="remaining-amount">${empty && !r.noRule ? '—' : money(r.remaining)}</strong></div>
     <p class="result-foot">${r.remaining > 0 && r.best > 0 ? `Assumes future days do not exceed your ${money(r.best, 0)} best day.` : 'Consistency check only. Other account requirements still apply.'}${input.target > 0 ? ` Evaluation target: ${money(input.target, 0)}.` : ''}</p>`;
@@ -212,9 +212,10 @@ function renderTradingDays(result, ctx) {
   }
   const winning = ctx.winningThreshold !== null;
   const estimate = daysAtCurrentBest(result, progress);
-  const firmDescription = ctx.firmMinimum === null ? 'No separate firm minimum is recorded for this preset.' : ctx.firmMinimum === 0 ? 'No separate firm day minimum is set.' : winning ? `${dayText(ctx.firmMinimum)} with profit above ${money(ctx.winningThreshold, 0)} each, in the current payout window.` : `${dayText(ctx.firmMinimum)} in the current calculation window, with at least one trade per session.`;
+  const firmDescription = ctx.firmMinimum === null ? 'No separate firm minimum is recorded for this preset.' : ctx.firmMinimum === 0 ? 'No separate firm day minimum is set.' : winning ? `${dayText(ctx.firmMinimum)} with profit ${ctx.winningInclusive ? 'of at least' : 'above'} ${money(ctx.winningThreshold, 0)} each, in the current payout window.` : `${dayText(ctx.firmMinimum)} in the current calculation window, with at least one trade per session.`;
+  const bestCanQualify = !winning || (ctx.winningInclusive ? result.best >= ctx.winningThreshold : result.best > ctx.winningThreshold);
   const profitDays = result.remaining === 0 ? result.meets ? 0 : null : result.best > 0 ? Math.ceil(result.remaining / result.best) : null;
-  const estimateText = estimate === null ? progress.additionalDays === null ? 'Enter completed counts to include the firm’s day requirement. The profit-only estimate uses your current figures.' : result.best <= (ctx.winningThreshold || 0) && progress.firmRemaining > 0 ? 'More qualifying wins would set a new best day; the capped estimate is unavailable.' : 'Add profit figures to estimate the earliest finish.' : estimate === 0 ? 'The profit, consistency, and recorded day checks are met.' : `${dayText(estimate)} more under the recorded checks if future days earn up to ${money(result.best, 0)} each.`;
+  const estimateText = estimate === null ? progress.additionalDays === null ? 'Enter completed counts to include the firm’s day requirement. The profit-only estimate uses your current figures.' : !bestCanQualify && progress.firmRemaining > 0 ? 'More qualifying wins would set a new best day; the capped estimate is unavailable.' : 'Add profit figures to estimate the earliest finish.' : estimate === 0 ? 'The profit, consistency, and recorded day checks are met.' : `${dayText(estimate)} more under the recorded checks if future days earn up to ${money(result.best, 0)} each.`;
   $('trading-days-result').innerHTML = `<h3>Trading day estimate</h3><dl class="day-count-summary"><div><dt>Days for remaining profit</dt><dd>${profitDays === null ? '—' : profitDays}</dd></div><div><dt>${winning ? 'Qualifying wins' : 'Completed days'}</dt><dd>${progress.countedDays === null ? '—' : progress.countedDays}</dd></div><div><dt>Days still required</dt><dd>${progress.additionalDays === null ? '—' : progress.additionalDays}</dd></div></dl><p id="day-count-error" class="day-rule-description">${firmDescription}</p><p class="day-estimate">${estimateText}</p>${winning && progress.completedDays !== null ? `<p class="day-rule-description">${dayText(progress.completedDays)} traded in total. Losing and smaller winning days do not count as qualifying wins.</p>` : ''}${ctx.source && ctx.plan.id !== 'custom' ? `<a class="inline-link" href="${ctx.source}" target="_blank" rel="noopener noreferrer">Trading day source ${icon('external')}</a>` : ''}<p class="result-foot">Profit-only days assume future days stay at or below your current best day. Trading sessions, not calendar days.</p>`;
 }
 
@@ -225,7 +226,7 @@ function renderMath(r, ctx) {
   $('math-content').innerHTML = `<div class="formula-line"><strong>${money(r.best, 0)}</strong><span>÷</span><strong>${money(r.total, 0)}</strong><span>× 100 =</span><strong>${ratio}</strong></div>
     <div class="profit-strip" role="img" aria-label="Best day ${money(r.best)}, other profit ${money(rest)}${r.best > r.total ? '; losses make the best day greater than total profit' : ''}"><span class="profit-best" style="width:${bestShare}%"></span><span class="profit-rest" style="width:${100 - bestShare}%"></span></div>
     <div class="strip-legend"><span><i class="legend-dot"></i>Best day</span><span><i class="legend-dot rest"></i>${ctx.basis === 'positive' ? 'Other profitable days' : r.best > r.total ? 'Total reduced by losses' : 'All other days, net'}</span></div>
-    <p class="calculation-detail">${r.noRule ? 'This ratio is informational; no consistency threshold applies.' : r.best === 0 ? 'Enter a positive best day to calculate the required total.' : `Required ${ctx.basis === 'positive' ? 'profitable-day' : 'total'} profit: ${money(r.best, 0)} ÷ ${r.ruleBps / 10000} = <strong>${money(r.required)}</strong>`}${ctx.target > 0 ? `<br>Evaluation net-profit target: <strong>${money(ctx.target, 0)}</strong>` : ''}</p>`;
+    <p class="calculation-detail">${r.noRule ? 'This ratio is informational; no consistency threshold applies.' : r.best === 0 ? 'Enter a positive best day to calculate the required total.' : r.exclusive ? `Required total profit: <strong>${money(r.required)}</strong>. This is the first qualifying cent strictly below ${r.ruleBps / 100}%.` : `Required ${ctx.basis === 'positive' ? 'profitable-day' : 'total'} profit: ${money(r.best, 0)} ÷ ${r.ruleBps / 10000} = <strong>${money(r.required)}</strong>`}${ctx.target > 0 ? `<br>Evaluation net-profit target: <strong>${money(ctx.target, 0)}</strong>` : ''}</p>`;
 }
 function renderScenario() {
   if (!lastResult || lastResult.error) return;
@@ -235,7 +236,7 @@ function renderScenario() {
   const ctx = lastContext;
   // Under positive-day rules, a losing new day reduces net profit but not the denominator.
   const scenarioTotal = ctx.total + (ctx.basis === 'positive' ? Math.max(0, amount) : amount);
-  const r = calculate({ total: scenarioTotal, net: ctx.net + amount, best: Math.max(ctx.best, amount), ruleBps: ctx.ruleBps, target: ctx.target });
+  const r = calculate({ total: scenarioTotal, net: ctx.net + amount, best: Math.max(ctx.best, amount), ruleBps: ctx.ruleBps, exclusive: ctx.exclusive, target: ctx.target });
   if (r.error) { $('scenario-result').innerHTML = `<p class="input-error">${escape(r.error)}</p>`; return; }
   const progress = dayProgress(ctx, amount);
   const daysNote = progress.error ? progress.error : progress.additionalDays === null ? 'Enter completed day counts to preview day progress.' : `${dayText(progress.additionalDays)} still required by the recorded day checks.`;
@@ -246,11 +247,11 @@ function avatar(f) {
   return `<span class="firm-avatar${f.icon ? '' : ' firm-avatar-custom'}" aria-hidden="true">${f.icon ? `<img src="${escape(f.icon)}" width="32" height="32" alt="">` : icon('sliders')}</span>`;
 }
 function renderPreview() {
-  const ids = ['tradeify-growth', 'topstep-combine', 'mffu-eod', 'ftmo-current'];
+  const ids = firms.filter(f => f.id !== 'custom').map(f => f.previewPlan || plans.find(p => p.firm === f.id).id);
   $('preview-rows').innerHTML = ids.map(id => {
     const p = planById(id), f = firms.find(f => f.id === p.firm);
-    const days = tradingDayProgress({ ruleBps: p.rule, ...dayRuleFor(p, 50000) });
-    return `<tr><td><div class="firm-cell">${avatar(f)}<div><strong>${f.name}</strong><small>${p.short} · ${p.stage}</small></div></div></td><td>$50,000</td><td>${p.rule / 100}%</td><td>${dayText(days.minimumTotalDays)}${days.winningThreshold !== null ? '<small>Qualifying wins</small>' : ''}</td><td><button class="table-action" data-example="${id}" data-size="50000">Try example ${icon('arrow')}</button></td></tr>`;
+    const days = tradingDayProgress({ ruleBps: p.rule, exclusive: p.exclusive ?? false, ...dayRuleFor(p, 50000) });
+    return `<tr><td><div class="firm-cell">${avatar(f)}<div><strong>${f.name}</strong><small>${p.short} · ${p.stage}</small></div></div></td><td>$50,000</td><td>${p.exclusive ? 'Below ' : ''}${p.rule / 100}%</td><td>${dayText(days.minimumTotalDays)}${days.winningThreshold !== null ? '<small>Qualifying wins</small>' : ''}</td><td><button class="table-action" data-example="${id}" data-size="50000">Try example ${icon('arrow')}</button></td></tr>`;
   }).join('');
 }
 function renderLibrary() {
@@ -266,8 +267,8 @@ function renderLibrary() {
       const ex = exampleFor(p, size), r = calculate(ex);
       const required = Math.max(r.required, ex.target);
       const dayRule = dayRuleFor(p, size);
-      const days = tradingDayProgress({ ruleBps: p.rule, ...dayRule });
-      return `<tr><td class="plan-name">${p.short}<small>${p.stage} · ${p.basis === 'positive' ? 'Profitable days only' : 'Total profit'}</small><a class="library-source" href="${p.source}" target="_blank" rel="noopener noreferrer">Official source ${icon('external')}</a></td><td><select aria-label="${escape(f.name + ' ' + p.short)} example account size" data-library-size="${p.id}">${p.sizes.map(n => `<option value="${n}" ${n === size ? 'selected' : ''}>$${n / 1000}K</option>`).join('')}</select></td><td>${p.rule === null ? 'None' : `${p.rule / 100}%`}</td><td>${dayText(days.minimumTotalDays)}<small>${dayRule.winningThreshold !== null ? `Wins above ${money(dayRule.winningThreshold, 0)} each` : dayRule.firmMinimum === null ? 'Consistency lower bound only' : 'Trading sessions'}</small>${dayRule.source && dayRule.source !== p.source ? `<a class="library-source" href="${dayRule.source}" target="_blank" rel="noopener noreferrer">Day requirement ${icon('external')}</a>` : ''}</td><td>${money(ex.best, 0)}<small>Illustrative</small></td><td>${p.rule === null ? 'Not applicable' : money(required)}<small>${ex.target > 0 ? `Target ${money(ex.target, 0)}` : 'Consistency only'}</small></td><td><button class="table-action" data-example="${p.id}" data-size="${size}">Use ${icon('arrow')}</button></td></tr>`;
+      const days = tradingDayProgress({ ruleBps: p.rule, exclusive: p.exclusive ?? false, ...dayRule });
+      return `<tr><td class="plan-name">${p.short}<small>${p.stage} · ${p.basis === 'positive' ? 'Profitable days only' : 'Total profit'}</small><a class="library-source" href="${p.source}" target="_blank" rel="noopener noreferrer">Official source ${icon('external')}</a>${p.targetSource ? `<a class="library-source" href="${p.targetSource}" target="_blank" rel="noopener noreferrer">Account targets ${icon('external')}</a>` : ''}</td><td><select aria-label="${escape(f.name + ' ' + p.short)} example account size" data-library-size="${p.id}">${p.sizes.map(n => `<option value="${n}" ${n === size ? 'selected' : ''}>$${n / 1000}K</option>`).join('')}</select></td><td>${p.rule === null ? 'None' : `${p.exclusive ? 'Below ' : ''}${p.rule / 100}%`}</td><td>${dayText(days.minimumTotalDays)}<small>${dayRule.winningThreshold !== null ? `Wins ${dayRule.winningInclusive ? 'at least' : 'above'} ${money(dayRule.winningThreshold, 0)} each` : dayRule.firmMinimum === null ? 'Consistency lower bound only' : 'Trading sessions'}</small>${dayRule.source && dayRule.source !== p.source ? `<a class="library-source" href="${dayRule.source}" target="_blank" rel="noopener noreferrer">Day requirement ${icon('external')}</a>` : ''}</td><td>${money(ex.best, 0)}<small>Illustrative</small></td><td>${p.rule === null ? 'Not applicable' : money(required)}<small>${ex.target > 0 ? `Target ${money(ex.target, 0)}` : 'Consistency only'}</small></td><td><button class="table-action" data-example="${p.id}" data-size="${size}">Use ${icon('arrow')}</button></td></tr>`;
     }).join('')}</tbody></table></div></section>`;
   }).join('') || '<div class="panel empty-search"><h2>No matching rules</h2><p>Try another firm name, plan, stage, or percentage.</p><button class="button secondary" id="clear-search">Clear filters</button></div>';
 }
@@ -405,10 +406,10 @@ $('library-content').addEventListener('change', e => { if (e.target.dataset.libr
 $('export-button').addEventListener('click', () => {
   if (!lastResult || lastResult.error) return;
   const r = lastResult, c = lastContext;
-  const rows = [['Consistency calculation', 'Value'], ['Firm', firms.find(f => f.id === c.plan.firm).name], ['Plan', c.plan.name], ['Account size USD', state.size], ['Total used USD', (r.total / 100).toFixed(2)], ['Net profit USD', (r.net / 100).toFixed(2)], ['Best day USD', (r.best / 100).toFixed(2)], ['Rule percent', r.ruleBps === null ? 'None' : r.ruleBps / 100], ['Consistency percent', r.ratio === null ? 'Unavailable' : r.ratio.toFixed(6)], ['Consistency met', r.noRule ? 'Not applicable' : r.meets ? 'Yes' : 'No'], ['Evaluation target USD', (r.target / 100).toFixed(2)], ['Additional profit needed USD', (r.remaining / 100).toFixed(2)], ['Official source', c.plan.source || 'Custom settings'], ['Sources checked', CHECKED_ON], ['Scope', 'Consistency and listed profit target only; other account requirements apply.']];
+  const rows = [['Consistency calculation', 'Value'], ['Firm', firms.find(f => f.id === c.plan.firm).name], ['Plan', c.plan.name], ['Account size USD', state.size], ['Total used USD', (r.total / 100).toFixed(2)], ['Net profit USD', (r.net / 100).toFixed(2)], ['Best day USD', (r.best / 100).toFixed(2)], ['Rule percent', r.ruleBps === null ? 'None' : r.ruleBps / 100], ['Rule comparison', r.noRule ? 'Not applicable' : r.exclusive ? 'Strictly below' : 'At or below'], ['Consistency percent', r.ratio === null ? 'Unavailable' : r.ratio.toFixed(6)], ['Consistency met', r.noRule ? 'Not applicable' : r.meets ? 'Yes' : 'No'], ['Evaluation target USD', (r.target / 100).toFixed(2)], ['Additional profit needed USD', (r.remaining / 100).toFixed(2)], ['Official source', c.plan.source || 'Custom settings'], ['Sources checked', CHECKED_ON], ['Scope', 'Consistency and listed profit target only; other account requirements apply.']];
   const progress = dayProgress(c);
   if (progress.error) rows.push(['Day progress validation', progress.error]);
-  else rows.push(['Least days from the start', progress.minimumTotalDays ?? 'Not recorded'], ['Firm day minimum', progress.firmMinimum ?? 'Not recorded'], ['Trading days completed', progress.completedDays ?? 'Not entered'], ['Qualifying winning days', progress.qualifyingDays ?? 'Not applicable or not entered'], ['Winning day must exceed USD', c.winningThreshold === null ? 'Not applicable' : (c.winningThreshold / 100).toFixed(2)], ['Day checks still required', progress.additionalDays ?? 'Unknown'], ['Least additional days at current best', daysAtCurrentBest(r, progress) ?? 'Unknown'], ['Day requirement source', c.source || 'Consistency-derived bound or custom settings']);
+  else rows.push(['Least days from the start', progress.minimumTotalDays ?? 'Not recorded'], ['Firm day minimum', progress.firmMinimum ?? 'Not recorded'], ['Trading days completed', progress.completedDays ?? 'Not entered'], ['Qualifying winning days', progress.qualifyingDays ?? 'Not applicable or not entered'], ['Qualifying win comparison', c.winningThreshold === null ? 'Not applicable' : c.winningInclusive ? 'At least' : 'Greater than'], ['Winning day threshold USD', c.winningThreshold === null ? 'Not applicable' : (c.winningThreshold / 100).toFixed(2)], ['Day checks still required', progress.additionalDays ?? 'Unknown'], ['Least additional days at current best', daysAtCurrentBest(r, progress) ?? 'Unknown'], ['Day requirement source', c.source || 'Consistency-derived bound or custom settings']);
   if (state.mode === 'journal') state.days.forEach((d, i) => rows.push([`Day ${i + 1} P&L USD`, d.pnl]));
   const csv = '\uFEFF' + rows.map(row => row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(',')).join('\r\n');
   const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
@@ -417,5 +418,6 @@ $('export-button').addEventListener('click', () => {
 });
 window.addEventListener('hashchange', route);
 icons();
+$('firm-count').textContent = firms.filter(f => f.id !== 'custom').length;
 $('library-filter').insertAdjacentHTML('beforeend', firms.filter(f => f.id !== 'custom').map(f => `<option value="${f.id}">${f.name}</option>`).join(''));
 renderAccount(); renderInputMode(); renderPreview(); renderResult(); route(); save();

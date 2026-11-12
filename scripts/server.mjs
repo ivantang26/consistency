@@ -2,12 +2,13 @@ import http from 'node:http';
 import { readFile, stat } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { firms } from '../src/presets.js';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const publicRoot = process.argv.includes('--dist') ? path.join(root, 'dist') : root;
 const port = Number(process.env.PORT || 5173);
-const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.woff2': 'font/woff2', '.json': 'application/json' };
-const allowed = new Set(['/index.html', '/styles.css', '/favicon.svg', '/src/app.js', '/src/calculator.js', '/src/presets.js', '/src/state.js', '/assets/firms/tradeify.png', '/assets/firms/topstep.png', '/assets/firms/mffu.png', '/assets/firms/ftmo.png']);
+const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.png': 'image/png', '.jpg': 'image/jpeg', '.woff2': 'font/woff2', '.json': 'application/json' };
+const allowed = new Set(['/index.html', '/styles.css', '/favicon.svg', '/src/app.js', '/src/calculator.js', '/src/presets.js', '/src/state.js', ...firms.filter(f => f.icon).map(f => f.icon)]);
 const server = http.createServer(async (req, res) => {
   if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405); res.end(); return; }
   const pathname = new URL(req.url, 'http://localhost').pathname;
