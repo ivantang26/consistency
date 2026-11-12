@@ -22,6 +22,8 @@ Reduce frustrating manual calculations. Show the best day's share of total profi
 
 - Select a firm, named plan/stage, and account size; account size is not the denominator of a consistency calculation.
 - Calculate from either a profit summary or a daily trading journal, including losing days.
+- Start with empty profit inputs, completed-day counts, and journal rows. Examples are loaded explicitly and never fabricate completed sessions; preserve saved user-entered figures while clearing old synthetic defaults.
+- Omit the profit-basis selector/column and the fixed minimum-day chip. Firm presets select their correct calculation automatically; custom rules use net profit.
 - Show the least days implied by consistency and the published minimum recorded for a plan. Track completed sessions and qualifying wins, with account-size thresholds; unknown day requirements remain explicit.
 - Estimate additional days at the current best-day profit, under that stated cap; keep this estimate distinct from full payout eligibility.
 - Include researched official-source presets and an editable custom rule.

@@ -27,4 +27,8 @@ No shipping rasters are needed; all visual data is rendered as accessible HTML/C
 
 ## Minimum trading days extension
 
-Add a day minimum chip beside the consistency rule, whole-number completed-count fields under quick P&L, and a flat day-progress section below the existing result. Reuse the result palette, typography, and border spacing. Show the reciprocal consistency lower bound separately from sourced firm requirements. Growth counts only wins strictly above the selected account-size threshold. The journal counts sessions automatically; summary counts remain unknown until entered or loaded as examples. Add least-day comparisons to the rule tables and day progress to scenario/export output. Preserve the existing visual system and its outstanding rendered-review limitation.
+Use whole-number completed-count fields under quick P&L and a flat day-progress section below the existing result. Reuse the result palette, typography, and border spacing. Growth counts only wins strictly above the selected account-size threshold. The journal counts actual entered sessions automatically; summary counts remain unknown until entered. Keep sourced requirements in the rule library and day progress in scenario/export output.
+
+## Empty calculation refinement
+
+Remove the profit-basis selector, column, account note, and fixed “at least” chip. Start with blank profit and completed-day inputs and an empty journal, including after migrating old saved synthetic defaults. Explicit examples load financial amounts only. The live result shows days needed for the entered remaining profit rather than a fixed reciprocal-day figure from the start. Hide day results until performance inputs are valid and show an instructional empty state before entry. Preserve the existing visual system and its outstanding rendered-review limitation.

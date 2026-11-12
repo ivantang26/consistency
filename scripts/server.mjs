@@ -7,7 +7,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
 const publicRoot = process.argv.includes('--dist') ? path.join(root, 'dist') : root;
 const port = Number(process.env.PORT || 5173);
 const types = { '.html': 'text/html; charset=utf-8', '.css': 'text/css; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.svg': 'image/svg+xml', '.woff2': 'font/woff2', '.json': 'application/json' };
-const allowed = new Set(['/index.html', '/styles.css', '/favicon.svg', '/src/app.js', '/src/calculator.js', '/src/presets.js']);
+const allowed = new Set(['/index.html', '/styles.css', '/favicon.svg', '/src/app.js', '/src/calculator.js', '/src/presets.js', '/src/state.js']);
 const server = http.createServer(async (req, res) => {
   if (req.method !== 'GET' && req.method !== 'HEAD') { res.writeHead(405); res.end(); return; }
   const pathname = new URL(req.url, 'http://localhost').pathname;

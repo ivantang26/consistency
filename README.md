@@ -23,6 +23,7 @@ Deploy `dist/` to a static host. No backend or API keys are required. Google Fon
 ## Features
 
 - Quick summary calculations or a daily P&L journal, including losing days.
+- Empty initial inputs and journal; examples load only when selected and never fill completed-day counts. Saved user-entered data is preserved, while older synthetic defaults are cleared.
 - Current percentage, remaining consistency profit, and evaluation targets.
 - A next-day scenario planner that recalculates the best day.
 - Least possible trading days from the consistency percentage and recorded firm minimums, plus completed and remaining day counts.
@@ -45,7 +46,7 @@ This app checks a best-day percentage rule, any listed evaluation profit target,
 
 ### Minimum trading days
 
-The consistency lower bound from a fresh window is `ceil(100 / rule percent)` (for example, 35% needs at least 3 profitable days). The displayed least total days is the larger of that bound and any recorded firm minimum. A mathematical lower bound is labeled separately when no additional firm minimum has been verified.
+The rule library records the consistency lower bound from a fresh window, `ceil(100 / rule percent)`, alongside any firm minimum. The calculator starts empty and shows a dynamic profit-only day estimate from the entered amounts, plus progress against recorded day requirements when completed counts are supplied. It does not show a fixed “at least four days” starting assumption.
 
 In quick mode, enter total sessions and any qualifying winning days. Blank counts remain unknown. The journal counts one row as one trading session with at least one trade; zero or losing P&L still counts as a session, but does not count as a qualifying win.
 
@@ -70,6 +71,6 @@ Keep `PRODUCT.md`, `DESIGN.md`, `.impeccable/design.json`, and `.impeccable/surf
 
 ## Verification
 
-Twenty-nine Node calculation tests pass, including exact thresholds, cent rounding, losses, legacy denominators, profit-basis switching, mathematical day bounds, qualifying-win thresholds, impossible/missing day counts, and scenario validation. Static build and HTTP asset checks pass. Source review identified and resolved basis-switching and notification-contrast issues.
+Thirty-five Node tests pass, including calculation boundaries, qualifying-day thresholds, scenario validation, empty initial state, migration of saved synthetic defaults, preservation of entered data, and net-profit migration after removal of the custom selector. Static build and HTTP asset checks pass. Source review identified and resolved basis-switching and notification-contrast issues.
 
 Impeccable's rendered finish disposition is `recapture`: desktop and mobile screenshots could not be captured because browser access was unavailable and native computer use subsequently stopped on a URL-confidence policy check. Responsive layout, live browser interactions, final contrast, and font loading remain visually unverified. No deployment was performed.
